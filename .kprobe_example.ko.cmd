@@ -1,0 +1,1 @@
+cmd_/home/csvb/cs/pf_probe/kprobe_example.ko := ld -r -m elf_x86_64 -z max-page-size=0x200000 -T ./scripts/module-common.lds --build-id  -o /home/csvb/cs/pf_probe/kprobe_example.ko /home/csvb/cs/pf_probe/kprobe_example.o /home/csvb/cs/pf_probe/kprobe_example.mod.o ;  true
