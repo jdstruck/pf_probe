@@ -4,4 +4,4 @@
 *.order
 *.o*
 *.mk
-*.kprobe
+*.kprobe*

@@ -1,7 +1,6 @@
 # To build modules outside of the kernel tree, we run "make"
 # in the kernel source tree; the Makefile there then includes this
 # Makefile once again.
-kmod = kprobe_example 
 
 # This conditional selects whether we are being included from the
 # kernel Makefile or not.
@@ -28,8 +27,10 @@ clean:
 
 else
 	# called from kernel build system: just declare what our modules are
-	obj-m := kprobe_example.o 
+	obj-m += pf_probe_A.o 
 endif
+
+kmod = pf_probe_A 
 
 user: user.c
 	gcc -Wall -g -o user user.c
