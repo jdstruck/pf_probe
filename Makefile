@@ -28,6 +28,7 @@ clean:
 else
 	# called from kernel build system: just declare what our modules are
 	obj-m += pf_probe_A.o 
+	obj-m += pf_probe_B.o 
 endif
 
 kmod = pf_probe_A 
