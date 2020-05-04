@@ -21,6 +21,7 @@ static struct pf_data {
 } data[DATA_SIZE];
 //static long int addr[DATA_SIZE];
 char scatterplot[ROWS][COLUMNS+1];
+int data_count = 0;
 
 module_param_string(symbol, symbol, sizeof(symbol), 0645);
 module_param(pid_param, int, S_IRUGO);
@@ -43,8 +44,8 @@ static int handler_pre(struct kprobe *p, struct pt_regs *regs)
                         /* capture current time into struct data->time */
                         getnstimeofday(&data[counter].time);
 
-                        printk(KERN_ALERT "data[%d] {.addr = 0x%lx, .time.tv_nsec = %ld}\n", 
-                                counter, data[counter].addr, (long int) data[counter].time.tv_nsec);
+                        //printk(KERN_ALERT "data[%d] {.addr = 0x%lx, .time.tv_nsec = %ld}\n", 
+                        //        counter, data[counter].addr, (long int) data[counter].time.tv_nsec);
                         ++counter;
                 }
 
@@ -76,7 +77,7 @@ static void __exit kprobe_exit(void)
 
 void populate_scatterplot(void)
 {
-        int i, data_count, time_idx, addr_idx;
+        int i, time_idx, addr_idx;
         long elapsed_time, current_time;
         
         clear_scatterplot();
@@ -86,29 +87,30 @@ void populate_scatterplot(void)
         data_count = counter >= DATA_SIZE ? DATA_SIZE : counter; 
         elapsed_time = data[data_count-1].time.tv_nsec - data[0].time.tv_nsec;
     
-        for(i = 0; i < data_count; ++i) {
+        for(i = 0; i < data_count-1; ++i) {
                 current_time = data[i].time.tv_nsec - data[0].time.tv_nsec;
                 time_idx = (100 * current_time / elapsed_time) * (COLUMNS-1) / 100; 
                 addr_idx = (100 * (data[i].addr >> 32) / 0xffff) * ROWS / 100;
                 scatterplot[addr_idx][time_idx] = '*';
                  
-                printk(KERN_ALERT "data[%d] {.addr = 0x%lx, .time.tv_nsec = %ld}\n", 
-                        i, data[i].addr, (long int) data[i].time.tv_nsec);
-                printk(KERN_ALERT "%ld of %ld \n", current_time,(long int) elapsed_time); 
-                printk(KERN_ALERT "addr_idx %d / %d of %d \n", addr_idx, time_idx, data_count);
+                //printk(KERN_ALERT "data[%d] {.addr = 0x%lx, .time.tv_nsec = %ld}\n", 
+                //      i, data[i].addr, (long int) data[i].time.tv_nsec);
+                //printk(KERN_ALERT "%ld of %ld \n", current_time,(long int) elapsed_time); 
+                //printk(KERN_ALERT "addr_idx %d / %d of %d \n", addr_idx, time_idx, data_count);
         }
 }
 
 void print_scatterplot(void)
 {
-        int i;
-        char lmargin[10] = "         ";
-        char lmargin_addr_label[10] = " address ";
+        int i, addr_label_idx;
+        char lmargin[8] = "      ";
+        char lmargin_addr_label[8] = " addr ";
 	printk(KERN_ALERT "\n\n                                              Page Faults                            \n");
 	printk(KERN_ALERT "                                              -----------                            \n");
 	for(i = 0; i < ROWS; ++i) { 
-                 
-                sprintf(lmargin, "  0x%lx ", data[i].addr>>32);
+                addr_label_idx = (100 * (data[i].addr>>32) / 0xffff) * (data_count-1) / 100;
+                //printk(KERN_ALERT "addr_label_idx %d", addr_label_idx);
+                //sprintf(lmargin, "  0x%lx ", data[i].addr>>32);
                 printk(KERN_ALERT "%s| %s\n", lmargin, scatterplot[i]);
         }
 
