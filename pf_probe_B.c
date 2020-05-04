@@ -82,8 +82,6 @@ void populate_scatterplot(void)
         
         clear_scatterplot();
 
-        //printk(KERN_ALERT "data[0].time.tv_nsec = %ld", data[0].time.tv_nsec);
-        
         data_count = counter >= DATA_SIZE ? DATA_SIZE : counter; 
         elapsed_time = data[data_count-1].time.tv_nsec - data[0].time.tv_nsec;
     
@@ -92,11 +90,6 @@ void populate_scatterplot(void)
                 time_idx = (100 * current_time / elapsed_time) * (COLUMNS-1) / 100; 
                 addr_idx = (100 * (data[i].addr >> 32) / 0xffff) * ROWS / 100;
                 scatterplot[addr_idx][time_idx] = '*';
-                 
-                //printk(KERN_ALERT "data[%d] {.addr = 0x%lx, .time.tv_nsec = %ld}\n", 
-                //      i, data[i].addr, (long int) data[i].time.tv_nsec);
-                //printk(KERN_ALERT "%ld of %ld \n", current_time,(long int) elapsed_time); 
-                //printk(KERN_ALERT "addr_idx %d / %d of %d \n", addr_idx, time_idx, data_count);
         }
 }
 
@@ -105,12 +98,12 @@ void print_scatterplot(void)
         int i, addr_label_idx;
         char lmargin[8] = "      ";
         char lmargin_addr_label[8] = " addr ";
+
 	printk(KERN_ALERT "\n\n                                              Page Faults                            \n");
 	printk(KERN_ALERT "                                              -----------                            \n");
+
 	for(i = 0; i < ROWS; ++i) { 
                 addr_label_idx = (100 * (data[i].addr>>32) / 0xffff) * (data_count-1) / 100;
-                //printk(KERN_ALERT "addr_label_idx %d", addr_label_idx);
-                //sprintf(lmargin, "  0x%lx ", data[i].addr>>32);
                 printk(KERN_ALERT "%s| %s\n", lmargin, scatterplot[i]);
         }
 
