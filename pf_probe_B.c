@@ -19,7 +19,6 @@ static struct pf_data {
 	long int addr;
 	struct timespec time;
 } data[DATA_SIZE];
-//static long int addr[DATA_SIZE];
 char scatterplot[ROWS][COLUMNS+1];
 int data_count = 0;
 
@@ -40,12 +39,9 @@ static int handler_pre(struct kprobe *p, struct pt_regs *regs)
                 if(counter < DATA_SIZE) {
                         data[counter].addr = regs->si;
 
-                        //addr[counter] = regs->si;
                         /* capture current time into struct data->time */
                         getnstimeofday(&data[counter].time);
 
-                        //printk(KERN_ALERT "data[%d] {.addr = 0x%lx, .time.tv_nsec = %ld}\n", 
-                        //        counter, data[counter].addr, (long int) data[counter].time.tv_nsec);
                         ++counter;
                 }
 
@@ -57,8 +53,6 @@ static int __init kprobe_init(void)
 {
 	int ret;
 	kp.pre_handler = handler_pre;
-	//kp.post_handler = handler_post;
-	//kp.fault_handler = handler_fault;
 
 	ret = register_kprobe(&kp);
 	if (ret < 0) {
@@ -85,11 +79,14 @@ void populate_scatterplot(void)
         data_count = counter >= DATA_SIZE ? DATA_SIZE : counter; 
         elapsed_time = data[data_count-1].time.tv_nsec - data[0].time.tv_nsec;
     
-        for(i = 0; i < data_count-1; ++i) {
+        for(i = 0; i < data_count; ++i) {
                 current_time = data[i].time.tv_nsec - data[0].time.tv_nsec;
                 time_idx = (100 * current_time / elapsed_time) * (COLUMNS-1) / 100; 
                 addr_idx = (100 * (data[i].addr >> 32) / 0xffff) * ROWS / 100;
                 scatterplot[addr_idx][time_idx] = '*';
+        }
+        for(i = 0; i < ROWS; ++i) {
+            scatterplot[i][COLUMNS-1] = '\0';
         }
 }
 
